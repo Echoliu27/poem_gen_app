@@ -1,0 +1,23 @@
+body {
+  font-family: "Chilanka", cursive;
+  margin: auto;
+}
+button {
+  border: None;
+  padding: 8px;
+  border-radius: 30px;
+  background: linear-gradient(
+    270deg,
+    #ffeed0 0%,
+    rgba(241, 157, 157, 0.458333) 98.51%,
+    rgba(241, 157, 157, 0) 100%
+  );
+  color: black;
+  cursor: pointer;
+}
+
+.img-footer {
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+}
