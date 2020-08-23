@@ -1,14 +1,19 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block body %}
+{{ super() }}
+<style type="text/css">
+  body {
+    font-family: "Chilanka", cursive;
+    margin: auto;
+  }
+</style>
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Kids Poetry Slam</title>
-    </head>
+  <head> </head>
 
-    <body>
-        <h1>This is the result page</h1>
-        <p>{{ prediction_poem }}</p>
-        <p>{{ error }}</p>
-
-    </body>
-
+  <body>
+    <h1>This is the result page</h1>
+    <p>{{ prediction_poem }}</p>
+    <p>{{ error }}</p>
+  </body>
 </html>
+{% endblock %}

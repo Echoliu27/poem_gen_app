@@ -1,3 +1,7 @@
+#project
+checkpoints/
+google-cloud-sdk/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
