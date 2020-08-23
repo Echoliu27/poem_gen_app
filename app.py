@@ -19,7 +19,7 @@ import random
 import pandas as pd
 import numpy as np
 # import flask library
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 app = Flask(__name__)
 
 # sess = gpt2.start_tf_sess()
@@ -27,9 +27,19 @@ app = Flask(__name__)
 #                run_name="run1",
 #                checkpoint_dir="checkpoint")
 
-
 @app.route('/')
-def home():
+def index():
+
+	return render_template('index.html')
+
+@app.route('/sentence_input')
+def sentence_input():
+
+	return render_template('sentence_input.html')
+
+
+@app.route('/topic_input')
+def topic_input():
 	# can automate this use POS tagging
 	curated_topic_list = ['love','dog','cat','life','friend','school','spring','summer','basketball',
 							'rain', 'mom', 'blue', 'snow', 'brother', 'sky', 'winter', 'family', 'football',
@@ -47,7 +57,7 @@ def home():
 							'math', 'magic', 'lion', 'jelly', 'bike', 'america', 'turtle', 'frogs', 'darkness', 'teddy', 'tears',
 							'thunder', 'scary']
 
-	return render_template('home.html', data = random.sample(curated_topic_list, 10))
+	return render_template('topic_input.html', data = random.sample(curated_topic_list, 10))
 
 @app.route('/predict',methods=['POST'])
 def predict():
@@ -76,9 +86,15 @@ def predict():
 	              )
 
 
-	return render_template('home.html', prediction_poem = output[0].replace('<|startoftext|> ', ''), error = error)
+	# return render_template('home.html', prediction_poem = output[0].replace('<|startoftext|> ', ''), error = error)
+	return redirect(url_for('result', prediction_poem = output[0].replace('<|startoftext|> ', ''), error = error))
 	# HAN: if you want to generate a new page => redirect(url_for(...))
 
+
+@app.route('/result')
+def result():
+
+	return render_template('result.html', prediction_poem = request.args.get('prediction_poem'), error = request.args.get('error'))
 
 
 def get_input(request_dict):

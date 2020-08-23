@@ -1,6 +1,6 @@
 '''
 
-Generate a pandas pd with cleaned title and cleaned first sentence of a poem.
+Generate the 'poem_title_sentence.csv' file with cleaned title and cleaned first sentence of a poem.
 
 '''
 import numpy as np
