@@ -1,0 +1,7 @@
+version: '3'
+services:
+  web:
+    container_name: poem-gen-server
+    build: .
+    ports:
+      - "5000:80"
