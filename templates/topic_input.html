@@ -55,7 +55,7 @@
 
     <div class="topic-container">
       {% for topic in data %}
-      <input type="radio" name="oneTopic" value="{{ topic }}" />
+      <input type="radio" name="oneTopic" value="{{ topic }}" required/>
       <label for="{{ topic }}"> {{ topic }} </label><br />
       {% endfor %}
     </div>
