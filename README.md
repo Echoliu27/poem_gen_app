@@ -1,13 +1,12 @@
 # poem_gen_app
 
-Please download the model checkpoint at https://drive.google.com/file/d/1ouYjMeNglQ3SeI4go1T9OVLx9kubBtjc/view?usp=sharing
+Please download the model checkpoint at https://drive.google.com/file/d/1-I2cesjwu9YgOO4goLCFxsgj38qibMIl/view?usp=sharing
 ```
 git clone repo
 cd poem_gen_app
 mkdir checkpoint
 cd checkpoint
-# download run1.zip
-unzip run1.zip
+# download poem_new-2.pt
 
 pip install -r requirements.txt
 ```
