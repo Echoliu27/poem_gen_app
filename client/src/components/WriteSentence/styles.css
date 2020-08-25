@@ -1,0 +1,16 @@
+.WriteSentence {
+  padding-top: 40px;
+
+  font-family: "Chilanka", cursive;
+  font-size:15px;
+  margin: auto;
+  height: 100%;
+}
+
+input {
+  height: 48px;
+  font-size: 24px;
+  border: 1px solid black;
+  border-radius: 6px;
+  margin-right: 20px;
+}
