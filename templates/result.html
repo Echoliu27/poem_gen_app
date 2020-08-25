@@ -5,14 +5,18 @@
     font-family: "Chilanka", cursive;
     margin: auto;
   }
+  #output {
+    font-size: 15px;
+  }
 </style>
 <!DOCTYPE html>
 <html>
   <head> </head>
 
   <body>
-    <h1>This is the result page</h1>
-    <p>{{ prediction_poem }}</p>
+    <h1>Your poem is ready</h1>
+    <p id="output">{{ prediction_poem }}</p>
+    <img src="static/qd_angel.png" />
     <p>{{ error }}</p>
   </body>
 </html>
