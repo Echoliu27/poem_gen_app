@@ -1,0 +1,16 @@
+.App {
+  text-align: center;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button {
+    border: None;
+    padding: 8px;
+    border-radius: 36px;
+    background: linear-gradient(270deg, #FFEED0 0%, rgba(241, 157, 157, 0.458333) 98.51%, rgba(241, 157, 157, 0) 100%);
+    color: black;
+    cursor: pointer;
+    margin:36px 12px;
+}
