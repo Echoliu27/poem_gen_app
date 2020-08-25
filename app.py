@@ -13,19 +13,25 @@ Things to do:
 
 '''
 # import gpt2 library
-import gpt_2_simple as gpt2
 import os
+import re
 import random
 import pandas as pd
 import numpy as np
+
+import torch
+import torch.nn.functional as F
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+import logging
+from tqdm import tqdm, trange
 # import flask library
 from flask import Flask, request, render_template, redirect, url_for
 app = Flask(__name__)
 
-# sess = gpt2.start_tf_sess()
-# gpt2.load_gpt2(sess, 
-#                run_name="run1",
-#                checkpoint_dir="checkpoint")
+gpt2_type = 'gpt2'
+PATH = 'checkpoint/poem_new-2.pt'
+model = GPT2LMHeadModel.from_pretrained(gpt2_type)
+model.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')))
 
 @app.route('/')
 def index():
@@ -65,29 +71,18 @@ def predict():
 	final_text, error = get_input(request.form)
 	output = ['']
 
-	# start the gpt2 session
-	sess = gpt2.start_tf_sess()
-	gpt2.load_gpt2(sess, 
-	               run_name="run1",
-	               checkpoint_dir="checkpoint")
-
 	while(len(output[0]) <= len(final_text) + 30):
-		output = gpt2.generate(sess, 
-	              run_name='run1',
-	              checkpoint_dir='checkpoint',
-	              model_dir='models',
-	              sample_dir='samples',
-	              return_as_list=True,
-	              length=120,
-	              temperature=0.7,
-	              prefix = final_text,
-	              truncate = "<|endoftext|>",
-	              include_prefix = True,
-	              )
-
+		output = generate(model.to('cpu'), 
+									GPT2Tokenizer.from_pretrained(gpt2_type),
+									final_text,
+									entry_count=1)
+	def clean_poem(raw):
+		pre1 = re.sub(r'<\|poem\|>', '', raw)
+		pre2 = re.sub(r'<\|endoftext\|>', '', pre1)
+		return pre2
 
 	# return render_template('home.html', prediction_poem = output[0].replace('<|startoftext|> ', ''), error = error)
-	return redirect(url_for('result', prediction_poem = output[0].replace('<|startoftext|> ', ''), error = error))
+	return redirect(url_for('result', prediction_poem = clean_poem(output[0]), error = error))
 	# HAN: if you want to generate a new page => redirect(url_for(...))
 
 
@@ -110,7 +105,7 @@ def get_input(request_dict):
 		int_text = request.form['sentence']
 
 		# preprocess input, only deal with empty input for now
-		final_text = '<|startoftext|> ' + int_text.lower()
+		final_text = '<|poem|> ' + int_text.lower()
 		
 	elif (request_dict.get('oneTopic') != None):
 		'''
@@ -126,10 +121,80 @@ def get_input(request_dict):
 
 		# search for the first sentence corresponding to the topic in csv
 		int_text = random.sample(df[df['title_clean'].str.contains(topic)]['first_sentence'].to_list(), 1)
-		final_text = '<|startoftext|> ' + int_text[0]
+		final_text = '<|poem|> ' + int_text[0]
 	else:
 		error = 'Empty input. You have not fed the hungry machine yet.'
 	return final_text, error
+
+# generate text using this function	
+def generate(
+    model,
+    tokenizer,
+    prompt,
+    entry_count=10,
+    entry_length=100,
+    top_p=0.8,
+    temperature=0.7,
+):
+
+    model.eval()
+
+    generated_num = 0
+    generated_list = []
+
+    filter_value = -float("Inf")
+
+    with torch.no_grad():
+
+        for entry_idx in trange(entry_count):
+
+            entry_finished = False
+
+            generated = torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
+
+            # Using top-p (nucleus sampling): https://github.com/huggingface/transformers/blob/master/examples/run_generation.py
+
+            for i in range(entry_length):
+                outputs = model(generated, labels=generated)
+                loss, logits = outputs[:2]
+                logits = logits[:, -1, :] / (temperature if temperature > 0 else 1.0)
+
+                sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+                cumulative_probs = torch.cumsum(
+                    F.softmax(sorted_logits, dim=-1), dim=-1
+                )
+
+                sorted_indices_to_remove = cumulative_probs > top_p
+                sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[
+                    ..., :-1
+                ].clone()
+                sorted_indices_to_remove[..., 0] = 0
+
+                indices_to_remove = sorted_indices[sorted_indices_to_remove]
+                logits[:, indices_to_remove] = filter_value
+
+                next_token = torch.multinomial(F.softmax(logits, dim=-1), num_samples=1)
+                generated = torch.cat((generated, next_token), dim=1)
+
+                if next_token in tokenizer.encode("<|endoftext|>"):
+                    entry_finished = True
+
+                if entry_finished:
+
+                    generated_num = generated_num + 1
+
+                    output_list = list(generated.squeeze().numpy())
+                    output_text = tokenizer.decode(output_list)
+
+                    generated_list.append(output_text)
+                    break
+            
+            if not entry_finished:
+                output_list = list(generated.squeeze().numpy())
+                output_text = f"{tokenizer.decode(output_list)}<|endoftext|>" 
+                generated_list.append(output_text)
+                
+    return generated_list
 
 
 if __name__ == "__main__":
