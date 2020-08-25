@@ -5,6 +5,13 @@ google-cloud-sdk/
 # Mac OS
 *.DS_Store
 
+# React dependencies
+client/node_modules
+client/coverage
+client/build
+/.pnp
+.pnp.js
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

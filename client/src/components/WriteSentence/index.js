@@ -36,7 +36,7 @@ class WriteSentence extends Component {
     return (
       <div className="WriteSentence">
         <h3>Write your first sentence...</h3>
-        <input id="first sentence" onChange={this.handleChange} value={this.state.firstSentence} />
+        <input onChange={this.handleChange} value={this.state.firstSentence} />
         <button onClick={this.handleSubmit}>Complete the poem</button>
       </div>
     );
