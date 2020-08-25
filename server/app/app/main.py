@@ -1,7 +1,9 @@
 from flask import Flask, request
 from flask_cors import CORS
 import gpt_2_simple as gpt2
+import tensorflow as tf
 import json
+import gc
 
 app = Flask(__name__)
 CORS(app)
@@ -12,7 +14,7 @@ def generate():
     first_line = request.args['firstLine']
     first_line = '<|startoftext|> ' + first_line.lower()
 
-    sess = gpt2.start_tf_sess()
+    sess = gpt2.start_tf_sess(threads=1)
     gpt2.load_gpt2(sess,
                    run_name="run1",
                    checkpoint_dir="checkpoint")
@@ -23,6 +25,10 @@ def generate():
                                model_dir='models', sample_dir='samples', return_as_list=True,
                                length=120, temperature=0.7, prefix = first_line,
                                truncate = "<|endoftext|>", include_prefix = True)
+
+    tf.reset_default_graph()
+    sess.close()
+    gc.collect()
 
     data = output[0].replace('<|startoftext|> ', '')
     return json.dumps({"data": data})
